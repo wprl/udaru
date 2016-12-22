@@ -92,17 +92,22 @@ function testError (expect, errorString, cb) {
  * Merge the authorization default header with the provided options
  *
  * @param  {Object} customOptions { method, url, ... }
+ * @param  {Object} defaultoptions { method, url, ... }
  * @return {Object}
  */
-function requestOptions (customOptions) {
-  const defaultOptions = {
-    headers: {
-      authorization: 1,
-      org: 'WONKA'
+function requestOptions (customOptions, defaultoptions) {
+  let defaults = defaultoptions
+
+  if (!defaults) {
+    defaults = {
+      headers: {
+        authorization: 1,
+        org: 'WONKA'
+      }
     }
   }
 
-  return Object.assign(defaultOptions, customOptions)
+  return Object.assign(defaults, customOptions)
 }
 
 module.exports = {

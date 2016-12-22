@@ -31,7 +31,7 @@ lab.experiment('OrganizationOps', () => {
     organizationOps.list((err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(6)
+      expect(result.length).to.equal(7)
 
       done()
     })
@@ -189,7 +189,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       organizationOps.list((err, result) => {
-        expect(result.length).to.equal(6)
+        expect(result.length).to.equal(7)
         next(err, result)
       })
     })
@@ -276,7 +276,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       organizationOps.list((err, result) => {
-        expect(result.length).to.equal(6)
+        expect(result.length).to.equal(7)
         next(err, result)
       })
     })

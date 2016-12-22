@@ -1,18 +1,28 @@
 'use strict'
 
-const expect = require('code').expect
+const Code = require('code')
 const Lab = require('lab')
+const proxyquire = require('proxyquire')
+const expect = Code.expect
 const lab = exports.lab = Lab.script()
-var proxyquire = require('proxyquire')
-var utils = require('./../../utils')
 
-var policyOps = {}
-var policiesRoutes = proxyquire('./../../../routes/private/policies', { './../../lib/policyOps': () => policyOps })
-var server = proxyquire('./../../../wiring-hapi', { './routes/private/policies': policiesRoutes })
+const utils = require('./../../utils')
+
+const policyOps = {}
+const policiesRoutes = proxyquire('./../../../routes/private/policies', { './../../lib/policyOps': () => policyOps })
+const server = proxyquire('./../../../wiring-hapi', { './routes/private/policies': policiesRoutes })
+
+const getRequestOptions = (options) => {
+  return utils.requestOptions(options, {
+    headers: {
+      authorization: 8
+    }
+  })
+}
 
 lab.experiment('Policies', () => {
   lab.test('create new policy without a service key should return 403 Forbidden', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'POST',
       url: '/authorization/policies?sig=1234',
       payload: {
@@ -23,14 +33,17 @@ lab.experiment('Policies', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(403)
+      const result = response.result
+
+      expect(result.statusCode).to.equal(403)
+      expect(result.message).to.be.undefined()
 
       done()
     })
   })
 
   lab.test('create new policy without valid data should return 400 Bad Request', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'POST',
       url: '/authorization/policies?sig=123456789',
       payload: {
@@ -40,7 +53,9 @@ lab.experiment('Policies', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
+      const result = response.result
+
+      expect(result.statusCode).to.equal(400)
 
       done()
     })
@@ -51,11 +66,11 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin',
-      organizationId: 'WONKA',
-      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      organizationId: 'POL_TEST',
+      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["pol_test:documents:/public/*"]}]}'
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'POST',
       url: '/authorization/policies?sig=123456789',
       payload: {
@@ -66,7 +81,7 @@ lab.experiment('Policies', () => {
     })
 
     policyOps.createPolicy = (params, cb) => {
-      expect(params).to.equal({ version: '2016-07-01', name: 'Documents Admin', organizationId: 'WONKA', statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}' })
+      expect(params).to.equal({ version: '2016-07-01', name: 'Documents Admin', organizationId: 'POL_TEST', statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["pol_test:documents:/public/*"]}]}' })
       process.nextTick(() => {
         cb(null, policyStub)
       })
@@ -83,7 +98,7 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('update new policy without a service key should return 403 Forbidden', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'PUT',
       url: '/authorization/policies/1?sig=1234',
       payload: {
@@ -94,14 +109,17 @@ lab.experiment('Policies', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(403)
+      const result = response.result
+
+      expect(result.statusCode).to.equal(403)
+      expect(result.message).to.be.undefined()
 
       done()
     })
   })
 
   lab.test('update policy without valid data should return 400 Bad Request', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'PUT',
       url: '/authorization/policies/1?sig=123456789',
       payload: {
@@ -111,7 +129,9 @@ lab.experiment('Policies', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
+      const result = response.result
+
+      expect(result.statusCode).to.equal(400)
 
       done()
     })
@@ -122,11 +142,11 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin - updated',
-      organizationId: 'WONKA',
-      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}'
+      organizationId: 'POL_TEST',
+      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["pol_test:documents:/public/*"]}]}'
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'PUT',
       url: '/authorization/policies/2?sig=123456789',
       payload: {
@@ -137,7 +157,13 @@ lab.experiment('Policies', () => {
     })
 
     policyOps.updatePolicy = (params, cb) => {
-      expect(params).to.equal({ id: 2, organizationId: 'WONKA', version: '2016-07-01', name: 'Documents Admin - updated', statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}' })
+      expect(params).to.equal({
+        id: 2,
+        organizationId: 'POL_TEST',
+        version: '2016-07-01',
+        name: 'Documents Admin - updated',
+        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["pol_test:documents:/public/*"]}]}'
+      })
       process.nextTick(() => {
         cb(null, policyStub)
       })
@@ -154,26 +180,29 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('delete policy without a service key should return 403 Forbidden', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'DELETE',
       url: '/authorization/policies/1?sig=1234'
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(403)
+      const result = response.result
+
+      expect(result.statusCode).to.equal(403)
+      expect(result.message).to.be.undefined()
 
       done()
     })
   })
 
   lab.test('delete policy should return 204', (done) => {
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'DELETE',
       url: '/authorization/policies/1?sig=123456789'
     })
 
     policyOps.deletePolicy = (params, cb) => {
-      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
+      expect(params).to.equal({ id: 1, organizationId: 'POL_TEST' })
       process.nextTick(() => {
         cb(null)
       })

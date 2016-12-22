@@ -1,15 +1,25 @@
 'use strict'
 
-const expect = require('code').expect
+const Code = require('code')
 const Lab = require('lab')
-const lab = exports.lab = Lab.script()
 const Boom = require('boom')
-var proxyquire = require('proxyquire')
-var utils = require('./../../utils')
+const proxyquire = require('proxyquire')
+const expect = Code.expect
+const lab = exports.lab = Lab.script()
 
-var policyOps = {}
-var policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/policyOps': () => policyOps })
-var server = proxyquire('./../../../wiring-hapi', { './routes/public/policies': policiesRoutes })
+const utils = require('./../../utils')
+
+const policyOps = {}
+const policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/policyOps': () => policyOps })
+const server = proxyquire('./../../../wiring-hapi', { './routes/public/policies': policiesRoutes })
+
+const getRequestOptions = (options) => {
+  return utils.requestOptions(options, {
+    headers: {
+      authorization: 8
+    }
+  })
+}
 
 lab.experiment('Policies', () => {
   lab.test('get policy list', (done) => {
@@ -24,11 +34,11 @@ lab.experiment('Policies', () => {
     }]
 
     policyOps.listByOrganization = (params, cb) => {
-      expect(params).to.equal({ organizationId: 'WONKA' })
+      expect(params).to.equal({ organizationId: 'POL_TEST' })
       cb(null, policyListStub)
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'GET',
       url: '/authorization/policies'
     })
@@ -45,13 +55,13 @@ lab.experiment('Policies', () => {
 
   lab.test('get policy list should return error for error case', (done) => {
     policyOps.listByOrganization = (params, cb) => {
-      expect(params).to.equal({ organizationId: 'WONKA' })
+      expect(params).to.equal({ organizationId: 'POL_TEST' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'GET',
       url: '/authorization/policies'
     })
@@ -59,8 +69,9 @@ lab.experiment('Policies', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
+      expect(result.statusCode).to.equal(500)
+      expect(result.error).to.equal('Internal Server Error')
+      expect(result.message).to.equal('An internal server error occurred')
 
       done()
     })
@@ -96,13 +107,13 @@ lab.experiment('Policies', () => {
     }
 
     policyOps.readPolicy = (params, cb) => {
-      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
+      expect(params).to.equal({ id: 1, organizationId: 'POL_TEST' })
       process.nextTick(() => {
         cb(null, policyStub)
       })
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'GET',
       url: '/authorization/policies/1'
     })
@@ -119,13 +130,13 @@ lab.experiment('Policies', () => {
 
   lab.test('get single policy should return error for error case', (done) => {
     policyOps.readPolicy = (params, cb) => {
-      expect(params).to.equal({ id: 99, organizationId: 'WONKA' })
+      expect(params).to.equal({ id: 99, organizationId: 'POL_TEST' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
     }
 
-    const options = utils.requestOptions({
+    const options = getRequestOptions({
       method: 'GET',
       url: '/authorization/policies/99'
     })
@@ -133,8 +144,9 @@ lab.experiment('Policies', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
+      expect(result.statusCode).to.equal(500)
+      expect(result.error).to.equal('Internal Server Error')
+      expect(result.message).to.equal('An internal server error occurred')
 
       done()
     })

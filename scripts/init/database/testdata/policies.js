@@ -147,5 +147,20 @@ module.exports = [
         'Resource': ['*']
       }
     ]
+  }],
+  [0.1, 'Policies Admin', 'POL_TEST', {
+    'Statement': [
+      {
+        'Effect': 'Allow',
+        'Action': [
+          'authorization:policies:create',
+          'authorization:policies:update',
+          'authorization:policies:delete',
+          'authorization:policies:list',
+          'authorization:policies:read'
+        ],
+        'Resource': ['/authorization/policy/POL_TEST']
+      }
+    ]
   }]
 ]
