@@ -80,6 +80,32 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test.skip('create an user with the same id but different organization should work', (done) => {
+    const userData = {
+      id: 'testId',
+      name: 'Mike Teavee',
+      organizationId: 'WONKA'
+    }
+    udaru.users.create(userData, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      const userData = {
+        id: 'testId',
+        name: 'Mike Teavee',
+        organizationId: 'SHIPLINE'
+      }
+      udaru.users.create(userData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+
+        udaru.users.delete({ id: 'testId', organizationId: 'WONKA' }, () => {
+          udaru.users.delete({ id: 'testId', organizationId: 'SHIPLINE' }, done)
+        })
+      })
+    })
+  })
+
   lab.test('create a user with long name should fail', (done) => {
     const userName = Array(52).join('a')
     udaru.users.create({ organizationId: 'WONKA', name: userName, id: 'longtestid' }, (err, result) => {

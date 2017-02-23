@@ -21,17 +21,27 @@ VALUES
   ('WONKA','Wonka Inc','Scrumpalicious Chocolate');
 
 
-INSERT INTO users (id, name, org_id)
+INSERT INTO users (id, name)
 VALUES
-  ('ROOTid','Super User','ROOT'),
-  ('CharlieId','Charlie Bucket','WONKA'),
-  ('MikeId','Mike Teavee','WONKA'),
-  ('VerucaId','Veruca Salt','WONKA'),
-  ('AugustusId','Augustus Gloop','WONKA'),
-  ('WillyId','Willy Wonka','WONKA'),
-  ('ModifyId','Modify Me','WONKA'),
-  ('ManyPoliciesId','Many Polices','WONKA');
+  ('ROOTid','Super User'),
+  ('CharlieId','Charlie Bucket'),
+  ('MikeId','Mike Teavee'),
+  ('VerucaId','Veruca Salt'),
+  ('AugustusId','Augustus Gloop'),
+  ('WillyId','Willy Wonka'),
+  ('ModifyId','Modify Me'),
+  ('ManyPoliciesId','Many Polices');
 
+INSERT INTO user_organizations (user_id, org_id)
+VALUES
+  ('ROOTid','ROOT'),
+  ('CharlieId','WONKA'),
+  ('MikeId','WONKA'),
+  ('VerucaId','WONKA'),
+  ('AugustusId','WONKA'),
+  ('WillyId','WONKA'),
+  ('ModifyId','WONKA'),
+  ('ManyPoliciesId','WONKA');
 
 INSERT INTO teams (id, name, description, team_parent_id, org_id, path)
 VALUES
