@@ -7,6 +7,46 @@ The usual modeling case is to build independent organizations, each organization
 
 In the examples below in the **Cross organization access management** section it is described a particular case in which we need users that have access rights over several organizations. This corner case is not the perfect match for the Udaru architecture but it can be achieved using the shallow impersonation feature.
 
+## Modeling an HR application
+
+This section implements a practical example on how to model a software company for a HR application.
+
+### Context
+
+The problem to be solved is:
+
+The company named CompanyX has an HR department and works with employees and contractors. Employees have to sign at employment a set of documents and also provide a set of documents, all these are stored in a restricted access location. For Contractors it is the same but for a different set of documents. Document access should be configured in such a way so that the user can see the documents that belong to him (and can't see the documents of other users), can see general company docs, docs related to his department or his location. The HR team members can see all documents of all users and also have the right to add documents in all locations, manage documents, teams and users.
+
+The company structure has a sales, HR, development and a financial department. The development department is distributed across several countries.
+
+Beside the user related document there are company documents that all users need to view (like company internal policies related to days off or travelling expenses procedures), then there are documents that are specific to each department type or country. This means that users need to have rights to access besider their documents als the documents that are assigned to his department or his specific country documents.
+
+### Model structure
+
+The structure to be modeled is the following:
+- An organization to which all teams are attached,
+- A team for each department. This team has assigned policies that give team members access to department documents. The HR team has organization manager priviledges so that they have full access to all resources and can also do operations on teams, users and resources,
+- A team is created for each country. Members of this team have access to country specific documents,
+- An `employee` and a `contractor` team is created so that members attached to this team can access specific documents.
+
+A visual representation of the structure:
+```
+  ------------   ----------------------------------------------------
+  |  rootOrg |   |                   CompanyX org                   |
+  ------------   ----------------------------------------------------
+        |         /  |      |          |         |        \       \
+     rootUser   HR Sales  Financial Development General CountryX CountryY
+                |    |       |        /   \
+              User1  User2 User3  Team1   Team2
+                                    |      / \
+                                  User4 User5 User6
+```
+
+### Solution
+
+A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited acces across organizations" Experiment.
+
+
 ## Cross organization access management
 
 This example describes how to model an organization in which it is needed to have users that have access rights over several organizations and have limited access rights on other organizations.
