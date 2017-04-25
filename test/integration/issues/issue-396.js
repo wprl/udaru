@@ -23,7 +23,7 @@ lab.experiment('Issue #396: Reproduction', () => {
         id: 'AdminId',
         name: 'Mr. Admin No Policy',
         organizationId: 'ROOT'
-      },
+      }
     },
     policies: {
       org1AdminPolicy: {
@@ -34,11 +34,11 @@ lab.experiment('Issue #396: Reproduction', () => {
             {
               Effect: 'Allow',
               Action: ['do:stuff'],
-              Resource: ['all:stuff:*'],
+              Resource: ['all:stuff:*']
             }
           ]
         }
-      },
+      }
     }
   })
 
@@ -54,10 +54,10 @@ lab.experiment('Issue #396: Reproduction', () => {
 
     server.inject(options, (response) => {
       const result = response.result
-      
+
       expect(response.statusCode).to.equal(200)
       expect(result.actions).to.have.length(0)
-      
+
       done()
     })
   })
@@ -74,10 +74,10 @@ lab.experiment('Issue #396: Reproduction', () => {
 
     server.inject(options, (response) => {
       const result = response.result
-      
+
       expect(response.statusCode).to.equal(200)
       expect(result.access).to.equal(false)
-      
+
       done()
     })
   })
