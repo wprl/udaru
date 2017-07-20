@@ -191,7 +191,7 @@ JSON structure:
 ```
 
 ### Service API documentation
-The Swagger API documentation gives explanations on the exposed API.
+The [Swagger API documentation][swagger-site-link] gives explanations on the exposed API.
 
 To run Swagger:
 
@@ -261,6 +261,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
+[swagger-site-link]: docs/udaru-swagger-site/index.html
 [Udaru Introduction]: docs/overview.md
 [Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
